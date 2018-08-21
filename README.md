@@ -8,7 +8,8 @@
   - Compile the squid-translator binary per below instructions
   - Symlink the stripped binary to /usr/bin/ 
   `sudo ln -s /opt/squid-notracking-translator/target/release/squid-translator /usr/bin/`
-  - Update squid.conf with acl config, edit crontab to update notracking list, translate to squid acl, and then reload squid config
+  - Configure squid appropriately and update with acl config, see example in this repo
+  - Edit crontab to update notracking list, translate to squid acl, and then reload squid config
 ```text
 localadmin@squid:~$ cat /etc/squid/squid.conf
 [...]
