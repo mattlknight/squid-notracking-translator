@@ -1,9 +1,13 @@
 # squid-notracking-translator
 - Rust application to translate dnsmasq based https://github.com/notracking/hosts-blocklists to squid domain acl blocklist
 - Example Use Case:
-  - Clone the notracking repo, `sudo git clone https://github.com/notracking/hosts-blocklists /opt/hosts-blocklists`
+  - Clone this repo,
+  `sudo git clone https://github.com/mattlknight/squid-notracking-translator.git /opt/squid-notracking-translator`
+  - Clone the notracking repo, 
+  `sudo git clone https://github.com/notracking/hosts-blocklists /opt/hosts-blocklists`
   - Compile the squid-translator binary per below instructions
-  - Symlink the stripped binary to /usr/bin/ `sudo ln -s /opt/squid-notracking-translator/target/release/squid-translator /usr/bin/`
+  - Symlink the stripped binary to /usr/bin/ 
+  `sudo ln -s /opt/squid-notracking-translator/target/release/squid-translator /usr/bin/`
   - Update squid.conf with acl config, edit crontab to update notracking list, translate to squid acl, and then reload squid config
 ```text
 localadmin@squid:~$ cat /etc/squid/squid.conf
