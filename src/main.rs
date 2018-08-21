@@ -1,8 +1,10 @@
 extern crate clap;
+extern crate regex;
 
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Read, Write};
 use clap::{Arg, App, ArgMatches};
+use regex::Regex;
 
 
 fn read_blocklist<T: AsRef<str>>(filename: T) -> Vec<String> {
@@ -22,18 +24,24 @@ fn read_blocklist<T: AsRef<str>>(filename: T) -> Vec<String> {
     
     for line in buf_reader.lines() {
         let line = match line {
-            Ok(line) => line,
+            Ok(line) => line.trim(),
             Err(err) => panic!("{:?}", err),
         };
+        if line.startswith("#") || line.len() < 1 {
+            continue;
+        }
         squid_lines.push(parse_line(&line))
     }
     squid_lines
 }
 
 fn parse_line<T: AsRef<str>>(line: T) -> String {
-    let mut new_line = String::new();
-
-    new_line
+    let chunks = line.split('/');
+    if chunks.len() != 3 {
+        panic!("parse_line() chunks != 3, line = [{}]", line);
+    }
+    // let re = Regex::new(r"").expect("Failed to compile regex");
+    chunks[1].to_owned()
 }
 
 fn parse_args() -> ArgMatches<'static> {
