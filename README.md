@@ -20,6 +20,24 @@ size target/release/squid-translator
 ls -alh target/release/squid-translator
    [...] 2.0M Aug 21 10:59 target/release/squid-translator
 ```
+- Uses CLI arguments and provides help
+```text
+localadmin@squid:~$ sudo squid-translator -h
+Squid NoTracking Translator 1.0
+Matthew Knight <mattlknight@gmail.com>
+Converts https://github.com/notracking/hosts-blocklists to Squid compatible blocklist
+
+USAGE:
+    squid-translator --domain_blocklist <DOMAIN_BLOCKLIST> --squid_blocklist <SQUID_BLOCKLIST>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -d, --domain_blocklist <DOMAIN_BLOCKLIST>    Sets the filename for the dnsmasq compatible domain blocklist
+    -s, --squid_blocklist <SQUID_BLOCKLIST>      Sets the filename for the translated Squid compatible domain blocklist
+```
 
 ## Building/Compiling
 
