@@ -1,0 +1,6 @@
+[package]
+name = "squid-translator"
+version = "0.1.0"
+authors = ["Matthew Knight <mattlknight@gmail.com>"]
+
+[dependencies]
