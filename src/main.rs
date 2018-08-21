@@ -1,13 +1,15 @@
+#[macro_use] extern crate lazy_static;
 extern crate clap;
 extern crate regex;
 
+use std::collections::HashSet;
 use std::fs::OpenOptions;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use clap::{Arg, App, ArgMatches};
 use regex::Regex;
 
 
-fn read_blocklist<T: AsRef<str>>(filename: T) -> Vec<String> {
+fn read_blocklist<T: AsRef<str>>(filename: T) -> HashSet<String> {
     let file = OpenOptions::new()
                 .read(true)
                 .write(false)
@@ -20,28 +22,55 @@ fn read_blocklist<T: AsRef<str>>(filename: T) -> Vec<String> {
 
     let buf_reader = BufReader::new(file);
 
-    let mut squid_lines: Vec<String> = Vec::with_capacity(2000);
+    let mut squid_lines: HashSet<String> = HashSet::with_capacity(2000);
     
     for line in buf_reader.lines() {
         let line = match line {
-            Ok(line) => line.trim(),
+            Ok(line) => line.trim().to_owned(),
             Err(err) => panic!("{:?}", err),
         };
-        if line.startswith("#") || line.len() < 1 {
+        if line.starts_with("#") || line.len() < 1 {
             continue;
         }
-        squid_lines.push(parse_line(&line))
+        squid_lines.insert(parse_line(&line));
     }
+    // let mut x = 0;
+    // for dom in &squid_lines {
+    //     println!("{}", dom);
+    //     if x >= 10 {
+    //         break;
+    //     }
+    //     x += 1;
+    // }
     squid_lines
 }
 
-fn parse_line<T: AsRef<str>>(line: T) -> String {
-    let chunks = line.split('/');
-    if chunks.len() != 3 {
-        panic!("parse_line() chunks != 3, line = [{}]", line);
+fn write_blocklist<T: AsRef<str>>(filename: T, lines: &HashSet<String>) {
+    let file = OpenOptions::new()
+                .read(false)
+                .write(true)
+                .create(true)
+                .open(filename.as_ref());
+    let file = match file {
+        Ok(file) => file,
+        Err(err) => panic!("{:?}", err),
+    };
+
+    let mut buf_writer = BufWriter::new(file);
+
+    for line in lines {
+        buf_writer.write(format!(".{}\n", line).as_bytes()).expect("Failed to write line to file");
     }
-    // let re = Regex::new(r"").expect("Failed to compile regex");
-    chunks[1].to_owned()
+}
+
+fn parse_line<T: AsRef<str>>(line: T) -> String {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r".*/([\w\d\-\.]+)/.*").expect("Failed to compile regex");
+    }
+    let caps = RE.captures(line.as_ref()).expect(&format!("Failed to regex match against line = [{}]", line.as_ref()));
+    let line_match = caps.get(1).expect(&format!("Failed to regex match against line = [{}]", line.as_ref())).as_str().to_owned();
+    // println!("{}", line_match);
+    line_match
 }
 
 fn parse_args() -> ArgMatches<'static> {
@@ -70,5 +99,7 @@ fn parse_args() -> ArgMatches<'static> {
 fn main() {
     let matches = parse_args();
     let domain_blocklist_file = matches.value_of("domain_blocklist").expect("domain_blocklist should never be null");
+    let squid_blocklist_file = matches.value_of("squid_blocklist").expect("squid_blocklist should never be null");
     let squid_lines = read_blocklist(&domain_blocklist_file);
+    write_blocklist(squid_blocklist_file, &squid_lines);
 }
